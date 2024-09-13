@@ -2,6 +2,11 @@
   min-height: 100vh;
   padding: 2rem;
   font-family: Arial, sans-serif;
+  background-color: var(--background); /* Fallback color */
+  background-image: var(--backgroundImage);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .game-title {

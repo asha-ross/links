@@ -32,7 +32,6 @@ const startingWords = [
   'HEART', // Emotional and physical meanings
   'BOOK', // Cultural item with many associations
   'MUSIC', // Art form with rich vocabulary
-  'COLOR', // Visual concept with many specifics
   'DREAM', // Abstract concept, verb and noun
   'STAR', // Celestial object, also means celebrity
   'HOUSE', // Common object with many related words
@@ -347,7 +346,12 @@ const GameBoard: React.FC = () => {
   return (
     <div
       className="game-container"
-      style={{ backgroundColor: colourThemes[theme].background }}
+      style={
+        {
+          '--background': colourThemes[theme].background,
+          '--backgroundImage': colourThemes[theme].backgroundImage,
+        } as React.CSSProperties
+      }
     >
       <div className="mx-auto max-w-4xl">
         <h1

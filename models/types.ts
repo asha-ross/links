@@ -84,4 +84,14 @@ export interface GameState {
   popupPosition: PopupPosition | null
 }
 
-// You can add more interfaces or types as needed for your game logic
+export type TileType =
+  | 'NORMAL'
+  | 'DOUBLE_WORD'
+  | 'TRIPLE_WORD'
+  | 'DOUBLE_LETTER'
+  | 'TRIPLE_LETTER'
+
+export interface Tile {
+  letter: string
+  type: TileType
+}
