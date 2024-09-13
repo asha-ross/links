@@ -255,9 +255,10 @@ const GameBoard: React.FC = () => {
       setGridSize(gridSize + rowShift * 2)
     }
 
+    setBoard(newBoard)
+
     const difficulty = RELATIONSHIPS[relationship]
     const points = DIFFICULTY_SCORES[difficulty]
-    setBoard(newBoard)
 
     setScore((prevScore) => {
       const newScore = prevScore + points
@@ -273,6 +274,7 @@ const GameBoard: React.FC = () => {
     setSelectedCell(null)
     setNewWord('')
     setRelationship('')
+    setPopupPosition(null)
   }
 
   useEffect(() => {
@@ -475,7 +477,9 @@ const GameBoard: React.FC = () => {
               onSubmit={handleWordSubmit}
               position={popupPosition}
               theme={colourThemes[theme]}
-              onClose={handleClosePopup}
+              onClose={() => {
+                handleClosePopup
+              }}
             />
           )}
         </div>
