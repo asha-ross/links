@@ -2,54 +2,48 @@ import React, { useState, KeyboardEvent, useEffect } from 'react'
 import { colourThemes, ColourTheme } from '../styles/colourThemes'
 import WordOfTheDay from './WordOfTheDay'
 import TutorialModal from './TutorialMode'
+import {
+  INITIAL_GRID_SIZE,
+  EXPANSION_THRESHOLD,
+  EXPANSION_SIZE,
+  RELATIONSHIPS,
+  DIFFICULTY_SCORES,
+} from '../constants/gameConstants'
 import '../styles/main.css'
-
-const INITIAL_GRID_SIZE = 15
-const EXPANSION_THRESHOLD = 2 // Number of cells from the edge to trigger expansion
-const EXPANSION_SIZE = 5 // Number of rows/columns to add when expanding
-
-type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
-type Relationship = keyof typeof relationships
-type Direction = 'horizontal' | 'vertical'
-type Cell = string
-type Board = Cell[][]
-type SelectedCell = { row: number; col: number } | null
-
-interface RelationshipMap {
-  [key: string]: Difficulty
-}
-
-const relationships: RelationshipMap = {
-  SYNONYM: 'EASY',
-  ANTONYM: 'EASY',
-  DEFINITION: 'MEDIUM',
-  COLLOQUIALISM: 'MEDIUM',
-  RHYME: 'MEDIUM',
-  HOMOPHONE: 'MEDIUM',
-  ETYMOLOGY: 'HARD',
-  ANAGRAM: 'HARD',
-  PORTMANTEAU: 'HARD',
-  CONTRONYM: 'HARD',
-  METONYMY: 'HARD',
-  EPONYM: 'HARD',
-}
-
-const difficultyScores: { [key in Difficulty]: number } = {
-  EASY: 1,
-  MEDIUM: 2,
-  HARD: 3,
-}
+import {
+  Board,
+  SelectedCell,
+  Relationship,
+  Direction,
+} from '../../models/types'
+import WordInputPopup from './WordInputPopUp'
 
 const startingWords = [
-  'STUDY',
-  'PLAY',
-  'WORD',
-  'SKATE',
-  'NECESSARY',
-  'CHEAT',
-  'FEAR',
-  'RAGE',
-  'BELOVED',
+  'LIGHT', // Can lead to antonyms, synonyms, and various associations
+  'PLAY', // Versatile word with multiple meanings
+  'SOUND', // Rich in associations and potential for homophones
+  'TIME', // Abstract concept with many related words
+  'WATER', // Element with many associations
+  'FIRE', // Element with strong imagery and related words
+  'EARTH', // Planet, element, grounding concept
+  'AIR', // Element, homophone opportunities
+  'SPACE', // Multiple meanings, scientific and everyday uses
+  'MIND', // Abstract concept, rich in associations
+  'HEART', // Emotional and physical meanings
+  'BOOK', // Cultural item with many associations
+  'MUSIC', // Art form with rich vocabulary
+  'COLOR', // Visual concept with many specifics
+  'DREAM', // Abstract concept, verb and noun
+  'STAR', // Celestial object, also means celebrity
+  'HOUSE', // Common object with many related words
+  'TREE', // Nature-related, many specific types
+  'RIVER', // Geographic feature with metaphorical uses
+  'MOUNTAIN', // Geographic feature, metaphor for challenge
+  'BIRD', // Animal category with many specifics
+  'FLOWER', // Plant category, also verb
+  'STORM', // Weather phenomenon, also metaphorical
+  'FRIEND', // Social concept with many related words
+  'WORK', // Activity with many associations and forms
 ]
 
 const GameBoard: React.FC = () => {
@@ -68,6 +62,10 @@ const GameBoard: React.FC = () => {
   const [theme, setTheme] = useState<ColourTheme>('classic')
   const [hoveredCell, setHoveredCell] = useState<SelectedCell>(null)
   const [previewWord, setPreviewWord] = useState<string[]>([])
+  const [popupPosition, setPopupPosition] = useState<{
+    top: number
+    left: number
+  } | null>(null)
 
   useEffect(() => {
     // Place a random starting word in the center of the board
@@ -125,6 +123,24 @@ const GameBoard: React.FC = () => {
   const handleCellInteraction = (row: number, col: number): void => {
     if (board[row][col] !== '') {
       setSelectedCell({ row, col })
+
+      // Calculate popup position
+      const cellElement = document.getElementById(`cell-${row}-${col}`)
+      if (cellElement) {
+        const rect = cellElement.getBoundingClientRect()
+        const boardElement = document.querySelector('.game-board')
+        const boardRect = boardElement?.getBoundingClientRect()
+
+        if (boardRect) {
+          setPopupPosition({
+            top: rect.bottom - boardRect.top + 10, // 10px below the cell
+            left: rect.left - boardRect.left,
+          })
+        }
+      }
+    } else {
+      setSelectedCell(null)
+      setPopupPosition(null)
     }
   }
 
@@ -239,8 +255,8 @@ const GameBoard: React.FC = () => {
       setGridSize(gridSize + rowShift * 2)
     }
 
-    const difficulty = relationships[relationship]
-    const points = difficultyScores[difficulty]
+    const difficulty = RELATIONSHIPS[relationship]
+    const points = DIFFICULTY_SCORES[difficulty]
     setBoard(newBoard)
 
     setScore((prevScore) => {
@@ -317,6 +333,13 @@ const GameBoard: React.FC = () => {
     setTimeout(() => setNewCells([]), 1000)
   }
 
+  const handleClosePopup = () => {
+    setSelectedCell(null)
+    setPopupPosition(null)
+    setNewWord('')
+    setRelationship('')
+  }
+
   const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
   return (
@@ -330,35 +353,45 @@ const GameBoard: React.FC = () => {
           style={{ color: colourThemes[theme].headerText }}
         >
           Links
-        </h1>
-
-        <div className="mb-4">
-          <label
-            htmlFor="theme-select"
-            className="theme-select-label"
+          <div
+            className="score-display"
             style={{ color: colourThemes[theme].headerText }}
           >
-            Choose Theme:
-          </label>
-          <select
-            id="theme-select"
-            value={theme}
-            onChange={(e) => setTheme(e.target.value as ColourTheme)}
-            className="theme-select"
-            style={{
-              backgroundColor: colourThemes[theme].buttonBackground,
-              color: colourThemes[theme].buttonText,
-            }}
-          >
-            {Object.keys(colourThemes).map((themeName) => (
-              <option key={themeName} value={themeName}>
-                {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
-              </option>
-            ))}
-          </select>
+            Score: {score}
+          </div>
+        </h1>
+        <div className="banner-container"></div>
+
+        <div>
+          {' '}
+          <div className="mb-4">
+            <label
+              htmlFor="theme-select"
+              className="theme-select-label"
+              style={{ color: colourThemes[theme].headerText }}
+            >
+              Choose Theme:
+            </label>
+            <select
+              id="theme-select"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as ColourTheme)}
+              className="theme-select"
+              style={{
+                backgroundColor: colourThemes[theme].buttonBackground,
+                color: colourThemes[theme].buttonText,
+              }}
+            >
+              {Object.keys(colourThemes).map((themeName) => (
+                <option key={themeName} value={themeName}>
+                  {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6" style={{ position: 'relative' }}>
           <h2
             className="board-title"
             style={{ color: colourThemes[theme].headerText }}
@@ -394,6 +427,7 @@ const GameBoard: React.FC = () => {
                 return (
                   <button
                     key={`${rowIndex}-${colIndex}`}
+                    id={`cell-${rowIndex}-${colIndex}`}
                     className={`board-cell ${
                       selectedCell?.row === rowIndex &&
                       selectedCell?.col === colIndex
@@ -430,82 +464,27 @@ const GameBoard: React.FC = () => {
               }),
             )}
           </div>
+          {selectedCell && popupPosition && (
+            <WordInputPopup
+              newWord={newWord}
+              setNewWord={setNewWord}
+              relationship={relationship}
+              setRelationship={setRelationship}
+              direction={direction}
+              setDirection={setDirection}
+              onSubmit={handleWordSubmit}
+              position={popupPosition}
+              theme={colourThemes[theme]}
+              onClose={handleClosePopup}
+            />
+          )}
         </div>
-
+        <WordOfTheDay />
         <button onClick={() => setIsTutorialOpen(true)}>Tutorial</button>
         <TutorialModal
           isOpen={isTutorialOpen}
           onClose={() => setIsTutorialOpen(false)}
         />
-
-        <div className="input-section">
-          <h2
-            className="input-title"
-            style={{ color: colourThemes[theme].headerText }}
-          >
-            Add New Word
-          </h2>
-          <div className="input-container">
-            <input
-              type="text"
-              value={newWord}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewWord(e.target.value.toUpperCase())
-              }
-              placeholder="New Word"
-              className="text-input"
-              style={{
-                backgroundColor: colourThemes[theme].tileBackground,
-                color: colourThemes[theme].tileText,
-                border: `1px solid ${colourThemes[theme].tileBorder}`,
-              }}
-            />
-            <select
-              value={relationship}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setRelationship(e.target.value as Relationship)
-              }
-              className="select-input"
-              style={{
-                backgroundColor: colourThemes[theme].tileBackground,
-                color: colourThemes[theme].tileText,
-                border: `1px solid ${colourThemes[theme].tileBorder}`,
-              }}
-            >
-              <option value="">Select Relationship</option>
-              {Object.keys(relationships).map((rel) => (
-                <option key={rel} value={rel}>
-                  {rel}
-                </option>
-              ))}
-            </select>
-            <select
-              value={direction}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setDirection(e.target.value as Direction)
-              }
-              className="select-input"
-              style={{
-                backgroundColor: colourThemes[theme].tileBackground,
-                color: colourThemes[theme].tileText,
-                border: `1px solid ${colourThemes[theme].tileBorder}`,
-              }}
-            >
-              <option value="horizontal">Horizontal</option>
-              <option value="vertical">Vertical</option>
-            </select>
-            <button
-              onClick={handleWordSubmit}
-              className="submit-button"
-              style={{
-                backgroundColor: colourThemes[theme].buttonBackground,
-                color: colourThemes[theme].buttonText,
-              }}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
 
         {message && (
           <div
@@ -519,14 +498,6 @@ const GameBoard: React.FC = () => {
             {message}
           </div>
         )}
-
-        <div
-          className="score-display"
-          style={{ color: colourThemes[theme].headerText }}
-        >
-          Score: {score}
-        </div>
-        <WordOfTheDay />
       </div>
     </div>
   )
