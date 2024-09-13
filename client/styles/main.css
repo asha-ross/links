@@ -1,3 +1,269 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.game-container {
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.theme-select-label {
+  margin-right: 0.5rem;
+}
+
+.theme-select {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+}
+
+.board-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.board-cell.selected {
+  box-shadow: 0 0 0 2px;
+}
+
+.board-cell.preview {
+  opacity: 0.7;
+}
+
+.input-section {
+  margin-bottom: 1.5rem;
+}
+
+.input-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.text-input,
+.select-input {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  flex: 1;
+}
+
+.submit-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.message-box {
+  padding: 1rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.score-display {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Add these to your main.css file */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.board-cell {
+  transition: all 0.3s ease;
+}
+
+.board-cell.new-word {
+  animation:
+    fadeIn 0.5s ease-out,
+    pulse 0.5s ease-in-out;
+}
+
+.message-box {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.score-display {
+  transition: all 0.3s ease;
+}
+
+.score-display.score-changed {
+  animation: pulse 0.5s ease-in-out;
+}
+
+.word-of-the-day {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+  max-width: 300px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.word-of-the-day::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.1) 10px,
+    rgba(255, 255, 255, 0.1) 20px
+  );
+  animation: shine 20s linear infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-50%) translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50%) rotate(360deg);
+  }
+}
+
+.word-of-the-day h3 {
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.word {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.word::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.7);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.word-of-the-day:hover .word::after {
+  transform: scaleX(1);
+}
+
+.definition {
+  font-size: 1em;
+  line-height: 1.4;
+  margin-top: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 480px) {
+  .word-of-the-day {
+    max-width: 90%;
+  }
+
+  .word {
+    font-size: 1.5em;
+  }
+
+  .definition {
+    font-size: 0.9em;
+  }
+}
+.game-board {
+  display: grid;
+  transition: all 0.3s ease-in-out;
+  gap: 4px; /* Increase this value for more noticeable and consistent gaps */
+  border-radius: 0.5rem;
+  border: 1px solid;
+  padding: 0.5rem;
+  /* max-width: 90vw;
+  max-height: 90vh; */
+  overflow: auto;
+  justify-content: center; /* Center the grid horizontally */
+}
+
+.board-cell {
+  width: 2.5rem; /* Slightly increase the width */
+  height: 2.5rem; /* Slightly increase the height */
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+  font-size: 1rem; /* Slightly increase the font size */
+  border: 1px solid; /* Add a border to each cell for better definition */
+}
+
+@media (max-width: 768px) {
+  .board-cell {
+    width: 2rem;
+    height: 2rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+.board-cell.new-cell {
+  animation: highlightNew 1s ease-in-out;
+}
+
+@keyframes highlightNew {
+  0%,
+  100% {
+    background-color: inherit;
+  }
+  50% {
+    background-color: rgba(255, 255, 0, 0.3);
+  }
+}
