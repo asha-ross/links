@@ -92,7 +92,7 @@ export const colourThemes = {
     backgroundImage: 'url("oceanic.jpg")',
   },
   retro: {
-    background: '#faf3e0',
+    background: '#faf3e1',
     tileBackground: '#f3e5ab',
     tileBorder: '#fbc02d',
     tileText: '#8d6e63',
